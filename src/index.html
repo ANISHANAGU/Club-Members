@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Campus Club Members</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 30px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px;
+        }
+
+        h1 {
+            color: darkblue;
+        }
+
+        .box {
+            border: 1px solid gray;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background: #f2f2f2;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Campus Club Member Management</h1>
+
+
+<!-- ADD MEMBER -->
+
+<div class="box">
+
+<h2>Add Member</h2>
+
+<input id="memberId" placeholder="Member ID">
+<input id="name" placeholder="Name">
+<input id="clubName" placeholder="Club Name">
+<input id="year" placeholder="Year">
+<input id="role" placeholder="Role">
+<input id="points" placeholder="Points">
+<input id="interests" placeholder="Interests">
+<input id="status" placeholder="Status">
+
+<br>
+
+<button onclick="addMember()">Add Member</button>
+
+</div>
+
+
+<!-- SEARCH MEMBER -->
+
+<div class="box">
+
+<h2>Search Member</h2>
+
+<input id="searchId" placeholder="Member ID">
+
+<button onclick="searchMember()">
+    Search
+</button>
+
+</div>
+
+
+<!-- CLUB + POINTS -->
+
+<div class="box">
+
+<h2>Club Members Above Points</h2>
+
+<input id="clubSearch" placeholder="Club Name">
+<input id="pointSearch" placeholder="Minimum Points">
+
+<button onclick="clubSearch()">
+    Search
+</button>
+
+</div>
+
+
+<!-- UPDATE -->
+
+<div class="box">
+
+<h2>Update Member</h2>
+
+<input id="updateId" placeholder="Member ID">
+<input id="updateRole" placeholder="New Role">
+<input id="updatePoints" placeholder="New Points">
+
+<button onclick="updateMember()">
+    Update
+</button>
+
+</div>
+
+
+<!-- INCREASE POINTS -->
+
+<div class="box">
+
+<h2>Increase Club Points</h2>
+
+<input id="increaseClub" placeholder="Club Name">
+<input id="increasePoints" placeholder="Points to Add">
+
+<button onclick="increaseClubPoints()">
+    Increase
+</button>
+
+</div>
+
+
+<!-- RANGE -->
+
+<div class="box">
+
+<h2>Search Points Range</h2>
+
+<input id="minPoints" placeholder="Minimum">
+<input id="maxPoints" placeholder="Maximum">
+
+<button onclick="searchRange()">
+    Search
+</button>
+
+</div>
+
+
+<!-- DELETE -->
+
+<div class="box">
+
+<h2>Delete Member</h2>
+
+<input id="deleteId" placeholder="Member ID">
+
+<button onclick="deleteMember()">
+    Delete
+</button>
+
+</div>
+
+
+<!-- ALL MEMBERS -->
+
+<div class="box">
+
+<h2>All Members</h2>
+
+<button onclick="showAllMembers()">
+    Show All Members
+</button>
+
+</div>
+
+
+<h2>Result</h2>
+
+<pre id="result"></pre>
+
+
+<script>
+
+async function addMember() {
+
+    const member = {
+
+        memberId: document.getElementById("memberId").value,
+
+        name: document.getElementById("name").value,
+
+        clubName: document.getElementById("clubName").value,
+
+        year: Number(document.getElementById("year").value),
+
+        role: document.getElementById("role").value,
+
+        points: Number(document.getElementById("points").value),
+
+        interests: document.getElementById("interests").value,
+
+        status: document.getElementById("status").value
+    };
+
+
+    const response = await fetch("/add", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(member)
+    });
+
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function searchMember() {
+
+    const id =
+        document.getElementById("searchId").value;
+
+    const response =
+        await fetch("/member/" + id);
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function clubSearch() {
+
+    const club =
+        document.getElementById("clubSearch").value;
+
+    const points =
+        document.getElementById("pointSearch").value;
+
+    const response =
+        await fetch(
+            "/club?club=" + club + "&points=" + points
+        );
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function updateMember() {
+
+    const id =
+        document.getElementById("updateId").value;
+
+    const role =
+        document.getElementById("updateRole").value;
+
+    const points =
+        document.getElementById("updatePoints").value;
+
+
+    const response = await fetch(
+        "/member/" + id,
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                role: role,
+                points: Number(points)
+            })
+        }
+    );
+
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function increaseClubPoints() {
+
+    const club =
+        document.getElementById("increaseClub").value;
+
+    const points =
+        document.getElementById("increasePoints").value;
+
+
+    const response = await fetch(
+        "/club/" + club + "/points",
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                increase: Number(points)
+            })
+        }
+    );
+
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function searchRange() {
+
+    const min =
+        document.getElementById("minPoints").value;
+
+    const max =
+        document.getElementById("maxPoints").value;
+
+
+    const response =
+        await fetch(
+            "/range?min=" + min + "&max=" + max
+        );
+
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function deleteMember() {
+
+    const id =
+        document.getElementById("deleteId").value;
+
+
+    const response =
+        await fetch(
+            "/member/" + id,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+    const data = await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+
+async function showAllMembers() {
+
+    const response =
+        await fetch("/members");
+
+    const data =
+        await response.json();
+
+    document.getElementById("result").textContent =
+        JSON.stringify(data, null, 2);
+}
+
+</script>
+
+</body>
+</html>
